@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!--
+    Basic document setup:
+    - charset so text renders correctly
+    - viewport so the layout scales properly on phones/tablets
+    - title shows in the browser tab
+  -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CM3065 Exercise 1</title>
+
+  <!--
+    External stylesheet for ALL the styling (layout, buttons, panels, typography).
+    Keeping the styling separate makes the HTML easier to read and maintain.
+  -->
+  <link rel="stylesheet" href="styles.css">
+
+  <!--
+    p5.js core library:
+    This gives us the drawing canvas + the familiar setup()/draw() workflow.
+  -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
+
+  <!--
+    p5.sound add-on:
+    This adds audio playback + audio effects (filter, reverb, compressor, distortion),
+    plus utilities that sketch.js will use to process sound in the browser.
+  -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/addons/p5.sound.min.js"></script>
+</head>
+
+<body>
+  <!--
+    Simple top header/title area.
+    This is purely UI text so the user instantly knows what the page is.
+  -->
+  <div class="header">Exercise 1 – Web-based Audio Processor (p5.js + p5.sound)</div>
+
+  <!--
+    Main two-column layout container:
+    Left side = sound library (pre-recorded slots + import + actions)
+    Right side = canvas + transport controls + effects panel
+  -->
+  <div class="layout">
+
+    <!--
+      LEFT OUTER PANEL:
+      This whole panel is the "sound library" side.
+      Users pick one of the 6 slots, import audio into it, and manage it (edit/delete/record).
+    -->
+    <div class="outerPanel">
+      <!-- Title for the library section -->
+      <div class="libTitle">Pre-recorded<br/>Sounds Library</div>
+
+      <!--
+        6 sound-slot buttons:
+        Each one represents a slot (Sound 1..6).
+        The ids matter because sketch.js will attach click handlers to these.
+      -->
+      <div class="soundGrid">
+        <button class="soundBtn" id="sound1Btn">Sound 1</button>
+        <button class="soundBtn" id="sound2Btn">Sound 2</button>
+        <button class="soundBtn" id="sound3Btn">Sound 3</button>
+        <button class="soundBtn" id="sound4Btn">Sound 4</button>
+        <button class="soundBtn" id="sound5Btn">Sound 5</button>
+        <button class="soundBtn" id="sound6Btn">Sound 6</button>
+      </div>
+
+      <!--
+        Library list area:
+        This is where imported sounds / items can be shown as a list.
+        It starts with a hint message so the UI doesn’t look empty on first load.
+        The id "libraryList" is used by sketch.js to render/update content here.
+      -->
+      <div class="bigList" id="libraryList">
+        <div class="importHint">Click here to Import an audio file into the selected Sound slot</div>
+      </div>
+
+      <!--
+        Library action buttons:
+        - Edit: change name/metadata (whatever sketch.js supports)
+        - Delete: remove the selected sound from the slot/library
+        - Record New: start a recording flow and save the result into a slot
+        These ids are used by sketch.js to wire up the logic.
+      -->
+      <div class="libActions">
+        <button class="softBtn" id="editBtn">Edit</button>
+        <button class="softBtn" id="deleteBtn">Delete</button>
+        <button class="softBtn" id="recordNewBtn">Record<br/>New</button>
+      </div>
+
+      <!--
+        Quick little legend:
+        DW = Dry/Wet (how much of the effect you hear vs the original signal)
+        OL = Output Level (a gain control after the effect, to avoid quiet/loud jumps)
+      -->
+      <div class="dwolNote">D:W: Dry/Wet &nbsp;&nbsp;&nbsp; OL: Output level</div>
+    </div>
+
+    <!--
+      RIGHT OUTER PANEL:
+      This is the "main workstation" side:
+      - canvas (for visuals like spectrum/waveform/etc)
+      - transport controls (play/stop/loop/skip)
+      - master volume
+      - recording status
+      - effects panel with sliders
+    -->
+    <div class="outerPanel">
+
+      <!--
+        Canvas wrapper:
+        p5 will inject the canvas into the <main> tag.
+        This keeps the canvas neatly contained and styled by CSS.
+      -->
+      <div class="canvasWrap">
+        <main></main>
+      </div>
+
+      <!--
+        Transport controls row:
+        These are the typical playback controls users expect.
+        Each has an id so sketch.js can hook them to audio logic.
+      -->
+      <div class="controlRow">
+        <button class="mainBtn" id="playPauseBtn">Play \ Pause</button>
+        <button class="mainBtn" id="stopBtn">Stop</button>
+        <button class="mainBtn" id="loopBtn">Loop</button>
+        <button class="mainBtn" id="skipBtn">Skip to start</button>
+
+        <!--
+          Master volume control:
+          This is a global volume slider for the full output.
+          Range 0..1 is a nice simple normalised scale for audio gain.
+        -->
+        <div class="masterBox">
+          <label>Master Volume</label>
+          <input id="masterVol" type="range" min="0" max="1" step="0.01" value="0.8">
+        </div>
+      </div>
+
+      <!--
+        Recording/status row:
+        The "status" div is a simple place to show messages like
+        "Recording..." / "Saved!" / errors / current slot info, etc.
+      -->
+      <div class="recordRow">
+        <div id="status"></div>
+      </div>
+
+      <!--
+        Effects section:
+        This area contains all effect controls (sliders + dropdown + checkbox),
+        grouped into cards so it’s visually easy to scan.
+      -->
+      <div class="effectsOuter">
+        <div class="effectsTitle">Effects Panel</div>
+
+        <!--
+          Effects grid:
+          Each card below is one audio effect module.
+          Inside each card, the .rows layout lines up:
+          dot / label / input
+        -->
+        <div class="effectsGrid">
+          <!-- LOW-PASS FILTER CARD -->
+          <div class="effectCard">
+            <h3>Low-pass filter effect</h3>
+
+            <!--
+              Low-pass controls:
+              - Cutoff: where the filter starts removing high frequencies
+              - Resonance: emphasis around the cutoff frequency (can sound “peaky”)
+              - DW: blend between original and filtered signal
+              - OL: gain after this effect (handy when filter makes things quieter)
+            -->
+            <div class="rows">
+              <div class="dot"></div><div>Cutoff frequency</div><input id="lpCut" type="range" min="50" max="12000" step="1" value="2500">
+              <div class="dot"></div><div>Resonance</div><input id="lpRes" type="range" min="0.1" max="20" step="0.1" value="1.2">
+              <div></div><div><b>DW</b></div><input id="lpDW" type="range" min="0" max="1" step="0.01" value="0.7">
+              <div></div><div><b>OL</b></div><input id="lpOL" type="range" min="0" max="1.5" step="0.01" value="1.0">
+            </div>
+          </div>
+
+          <!-- REVERB CARD -->
+          <div class="effectCard">
+            <h3>Reverb filter effect</h3>
+
+            <!--
+              Reverb controls:
+              - Duration: how long the reverb “tail” is
+              - Decay Rate: how quickly that tail fades out
+              - Reverse: flips the reverb behaviour for a more special-effect sound
+              - DW/OL: same idea as above (blend + output gain)
+            -->
+            <div class="rows">
+              <div class="dot"></div><div>Reverb Duration</div><input id="rvDur" type="range" min="0" max="10" step="0.01" value="2.5">
+              <div class="dot"></div><div>Decay Rate</div><input id="rvDecay" type="range" min="0" max="10" step="0.01" value="3.0">
+              <div class="dot"></div><div>Reverse</div><input id="rvRev" type="checkbox">
+              <div></div><div><b>DW</b></div><input id="rvDW" type="range" min="0" max="1" step="0.01" value="0.35">
+              <div></div><div><b>OL</b></div><input id="rvOL" type="range" min="0" max="1.5" step="0.01" value="1.0">
+            </div>
+          </div>
+
+          <!-- COMPRESSOR CARD -->
+          <div class="effectCard">
+            <h3>Dynamic compressor</h3>
+
+            <!--
+              Compressor controls:
+              The compressor helps control dynamics (loud peaks vs quiet parts).
+              - Attack: how quickly compression kicks in
+              - Knee: how soft/hard the transition into compression feels
+              - Release: how quickly compression lets go
+              - Ratio: how strong the compression is once it triggers
+              - Threshold: level where compression starts working
+              - DW/OL: blend + post-gain, same UI pattern as other effects
+            -->
+            <div class="rows">
+              <div class="dot"></div><div>Attack</div><input id="cpAtk" type="range" min="0.001" max="0.3" step="0.001" value="0.02">
+              <div class="dot"></div><div>Knee</div><input id="cpKnee" type="range" min="0" max="40" step="0.1" value="10">
+              <div class="dot"></div><div>Release</div><input id="cpRel" type="range" min="0.01" max="1.0" step="0.01" value="0.25">
+              <div class="dot"></div><div>Ratio</div><input id="cpRatio" type="range" min="1" max="20" step="0.1" value="4">
+              <div class="dot"></div><div>Threshold</div><input id="cpThr" type="range" min="-60" max="0" step="0.5" value="-18">
+              <div></div><div><b>DW</b></div><input id="cpDW" type="range" min="0" max="1" step="0.01" value="1.0">
+              <div></div><div><b>OL</b></div><input id="cpOL" type="range" min="0" max="1.5" step="0.01" value="1.0">
+            </div>
+          </div>
+
+          <!-- DISTORTION CARD -->
+          <div class="effectCard">
+            <h3>Waveshaper distortion</h3>
+
+            <!--
+              Distortion controls:
+              - Amount: how much distortion is applied (more = rougher/grittier)
+              - Oversample: improves sound quality by processing at a higher rate
+                (at the cost of more CPU). Options: none, 2x, 4x.
+              - DW/OL: blend + output gain, same pattern as the other effects
+            -->
+            <div class="rows">
+              <div class="dot"></div><div>Distortion Amount</div><input id="dsAmt" type="range" min="0" max="1" step="0.01" value="0.2">
+              <div class="dot"></div><div>Oversample</div>
+              <select id="dsOver">
+                <option value="none">none</option>
+                <option value="2x">2x</option>
+                <option value="4x">4x</option>
+              </select>
+              <div></div><div><b>DW</b></div><input id="dsDW" type="range" min="0" max="1" step="0.01" value="0.6">
+              <div></div><div><b>OL</b></div><input id="dsOL" type="range" min="0" max="1.5" step="0.01" value="1.0">
+            </div>
+          </div>
+        </div>
+
+        <!--
+          Bottom actions for the effects panel:
+          - Clear filters: resets effect parameters back to defaults
+          - Save: stores the current settings (often as a preset / configuration)
+        -->
+        <div class="bottomRow">
+          <button class="bottomBtn" id="clearBtn">Clear filters</button>
+          <button class="bottomBtn" id="saveBtn">Save</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!--
+    Hidden file input:
+    This is the actual file picker the browser provides.
+    sketch.js typically triggers this programmatically when the user clicks the library list area.
+    accept="audio/*" keeps it focused on audio files (wav/mp3/aac/etc).
+  -->
+  <input id="filePicker" type="file" accept="audio/*"/>
+
+  <!--
+    Main sketch logic:
+    This is where the audio engine + UI event wiring + drawing happens.
+    The HTML is basically the "shell", while sketch.js is the "brains".
+  -->
+  <script src="sketch.js"></script>
+</body>
+</html>

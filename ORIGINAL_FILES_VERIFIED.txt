@@ -1,0 +1,9 @@
+ORIGINAL PROJECT FILE VERIFICATION
+
+All copied original Web Audio Processor project files were verified byte-for-byte against the source archive using SHA-256.
+No original HTML, JavaScript, CSS, library, or MP3 file was modified.
+
+Excluded only: .DS_Store operating-system metadata.
+
+Original files copied and verified: 11
+Mismatches: 0

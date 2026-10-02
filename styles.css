@@ -1,0 +1,505 @@
+/* 
+  Root-level CSS variables (design tokens):
+  These act like a tiny “theme” so you can change the whole look from one place.
+*/
+:root {
+  --bg: #e6e6e6;        /* page background */
+  --panel: #efefef;     /* panel/card background */
+  --stroke: #2a2a2a;    /* main border/outline colour */
+  --btn: #1e556f;       /* primary button colour */
+  --btnText: #fff;      /* text colour on primary buttons */
+  --btnSoft: #ead7cc;   /* softer button colour (library/actions) */
+}
+
+/* 
+  Base page styling:
+  - Remove default browser spacing
+  - Add a comfortable padding around the whole layout
+  - Set global font + text colour
+*/
+body {
+  margin: 0;
+  padding: 18px;
+  background: var(--bg);
+  font-family: Arial, sans-serif;
+  color: #111;
+}
+
+/* 
+  Top header bar text:
+  Bold, centered, slightly larger so it reads like a title.
+*/
+.header {
+  text-align: center;
+  font-weight: 900;
+  font-size: 22px;
+  margin-bottom: 12px;
+}
+
+/* 
+  Main two-column layout:
+  - Fixed-ish width for desktop, but still responsive with max-width: 100%
+  - Grid: left column (library) + right column (main app)
+*/
+.layout {
+  width: 1180px;
+  max-width: 100%;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+/* 
+  Panel “card” styling:
+  Used for both left and right main containers, so everything feels consistent.
+*/
+.outerPanel {
+  background: var(--panel);
+  border: 3px solid var(--stroke);
+  border-radius: 20px;
+  padding: 14px;
+  box-sizing: border-box;
+}
+
+/* 
+  Library title block:
+  Strong weight so the panel feels labeled and obvious.
+*/
+.libTitle {
+  text-align: center;
+  font-weight: 900;
+  font-size: 18px;
+  margin: 8px 0 10px 0;
+  line-height: 1.1;
+}
+
+/* 
+  Sound button grid:
+  2 columns of equal width with consistent spacing.
+*/
+.soundGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-top: 10px;
+}
+
+/* 
+  Each sound slot button:
+  Kept chunky and clear so it looks “pressable”.
+*/
+.soundBtn {
+  border: 3px solid var(--stroke);
+  border-radius: 14px;
+  padding: 16px 10px;
+  background: #f8f8f8;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+/* 
+  Active sound slot state:
+  Outline highlights which slot is currently selected.
+*/
+.soundBtn.active {
+  outline: 4px solid #2e6c96;
+  outline-offset: 0;
+  background: #ffffff;
+}
+
+/* 
+  Library list area:
+  Scrollable container where library items (rows) are shown.
+  Height is fixed to keep the UI stable even if the list grows.
+*/
+.bigList {
+  margin-top: 14px;
+  height: 320px;
+  border: 3px solid var(--stroke);
+  border-radius: 14px;
+  background: #f8f8f8;
+  overflow: auto;
+  padding: 10px;
+  box-sizing: border-box;
+  font-size: 13px;
+  position: relative;
+}
+
+/* 
+  Sticky import hint:
+  Stays at the top while the list scrolls, so the user always sees the guidance.
+*/
+.importHint {
+  position: sticky;
+  top: 0;
+  background: #f8f8f8;
+  padding: 6px 8px;
+  font-weight: 900;
+  border-bottom: 1px solid #ddd;
+  margin: -10px -10px 10px -10px;
+}
+
+/* 
+  Each row inside the library list:
+  Flex layout so the name + tag align nicely and don’t feel cramped.
+*/
+.libRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 8px;
+  border-bottom: 1px solid #ddd;
+  cursor: pointer;
+  border-radius: 10px;
+}
+
+/* 
+  Don’t draw a border on the final row (looks cleaner).
+*/
+.libRow:last-child {
+  border-bottom: none;
+}
+
+/* 
+  Selected library row:
+  Soft highlight so it’s clear which item will be edited/deleted.
+*/
+.libRow.selected {
+  background: #eaf4ff;
+}
+
+/* 
+  Library item name:
+  Ellipsis keeps long file names from breaking the layout.
+*/
+.libName {
+  font-weight: 900;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 240px;
+}
+
+/* 
+  Small tag text:
+  Used for extra info like “preset”, “recording”, format, etc. (depending on JS).
+*/
+.libTag {
+  font-size: 12px;
+  color: #333;
+  font-weight: 700;
+  opacity: 0.85;
+}
+
+/* 
+  Library action buttons row:
+  Space them evenly so they feel balanced.
+*/
+.libActions {
+  display: flex;
+  gap: 14px;
+  margin-top: 14px;
+  justify-content: space-between;
+}
+
+/* 
+  “Soft” buttons:
+  These are secondary actions (edit/delete/record), so they use the softer colour.
+*/
+.softBtn {
+  flex: 1;
+  border: 3px solid var(--stroke);
+  border-radius: 14px;
+  padding: 14px 10px;
+  background: var(--btnSoft);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+/* 
+  Quick legend text under the library actions:
+  Helps users understand the DW/OL abbreviations.
+*/
+.dwolNote {
+  text-align: center;
+  margin-top: 12px;
+  font-weight: 800;
+  color: #333;
+  opacity: 0.9;
+}
+
+/* 
+  Top row (currently not used in the HTML you pasted, but kept here):
+  A neat 2-column grid for optional UI blocks (like visual meters / info cards).
+*/
+.topRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+/* 
+  Spectral/visual placeholder box styling:
+  Centered, bold, and boxed so it reads like a “display panel”.
+*/
+.specBox {
+  border: 3px solid var(--stroke);
+  border-radius: 16px;
+  background: #f1f1f1;
+  height: 110px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 18px;
+}
+
+/* 
+  Canvas wrapper:
+  White background + border so the p5 canvas looks framed.
+*/
+.canvasWrap {
+  margin-top: 12px;
+  border: 3px solid var(--stroke);
+  border-radius: 16px;
+  background: #ffffff;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+/* 
+  Transport controls row:
+  Flex + wrap means it stays usable even on smaller screens.
+*/
+.controlRow {
+  margin-top: 14px;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* 
+  Primary “main” buttons (Play/Stop/Loop/etc):
+  Strong colour + white text so they stand out as main actions.
+*/
+.mainBtn {
+  border: 3px solid var(--stroke);
+  border-radius: 14px;
+  padding: 14px 18px;
+  background: var(--btn);
+  color: var(--btnText);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+/* 
+  Master volume box:
+  Pushed to the far right with margin-left:auto so it anchors nicely.
+*/
+.masterBox {
+  margin-left: auto;
+  border: 3px solid var(--stroke);
+  border-radius: 16px;
+  background: #f1f1f1;
+  padding: 8px 10px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-width: 230px;
+  box-sizing: border-box;
+}
+
+/* 
+  Label inside master volume box:
+  Keeps text bold and prevents wrapping.
+*/
+.masterBox label {
+  font-weight: 900;
+  font-size: 15px;
+  white-space: nowrap;
+}
+
+/* 
+  Master volume slider width:
+  Fixed width makes the UI feel consistent across browsers.
+*/
+.masterBox input[type="range"] {
+  width: 120px;
+}
+
+/* 
+  Recording/status row:
+  Flexible so it can grow with extra status elements if needed.
+*/
+.recordRow {
+  margin-top: 12px;
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+/* 
+  Recording mode pill (if used by the JS):
+  Styled like a little badge so it looks like a “mode indicator”.
+*/
+.recMode {
+  border: 3px solid var(--stroke);
+  border-radius: 14px;
+  background: #f8f8f8;
+  padding: 10px 12px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-weight: 900;
+}
+
+/* 
+  Status text area:
+  Small but bold, and min-height stops layout jumping when text appears/disappears.
+*/
+#status {
+  margin-top: 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: #333;
+  min-height: 18px;
+}
+
+/* 
+  Effects outer container:
+  Big bordered section that wraps the whole effects grid + bottom buttons.
+*/
+.effectsOuter {
+  margin-top: 8px;
+  border: 3px solid var(--stroke);
+  border-radius: 20px;
+  background: #f1f1f1;
+  padding: 12px;
+}
+
+/* 
+  Effects section title:
+  Centered to read like a panel heading.
+*/
+.effectsTitle {
+  text-align: center;
+  font-weight: 900;
+  font-size: 20px;
+  margin-bottom: 10px;
+}
+
+/* 
+  Effects grid:
+  Two columns so the four effect cards feel tidy and balanced.
+*/
+.effectsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+/* 
+  Individual effect card:
+  White background so controls pop against the grey panel.
+*/
+.effectCard {
+  border: 3px solid var(--stroke);
+  border-radius: 16px;
+  background: #ffffff;
+  padding: 10px 12px;
+  box-sizing: border-box;
+}
+
+/* 
+  Effect card heading:
+  Tight margins + centered text keeps the card neat.
+*/
+.effectCard h3 {
+  margin: 2px 0 10px 0;
+  text-align: center;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+/* 
+  Grid layout for each card’s control rows:
+  Column 1: small dot icon
+  Column 2: label text
+  Column 3: the input element (slider/select/checkbox)
+*/
+.rows {
+  display: grid;
+  grid-template-columns: 22px 1fr auto;
+  gap: 10px 12px;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+/* 
+  The little dot indicator:
+  Purely visual, but it helps the control list feel structured.
+*/
+.dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 3px solid var(--stroke);
+  background: #1e556f;
+}
+
+/* 
+  Range slider accent colour:
+  Improves the look of the slider “filled” portion (browser support varies).
+*/
+input[type="range"] {
+  accent-color: #2e6c96;
+}
+
+/* 
+  Dropdown styling (used for distortion oversampling):
+  Extra border + padding so it matches the chunky UI style.
+*/
+select {
+  width: 100%;
+  border: 3px solid var(--stroke);
+  border-radius: 12px;
+  padding: 8px;
+  font-weight: 800;
+  background: #f8f8f8;
+}
+
+/* 
+  Bottom row buttons (Clear filters / Save):
+  Flex makes them equal width and nicely spaced.
+*/
+.bottomRow {
+  margin-top: 14px;
+  display: flex;
+  gap: 14px;
+  justify-content: space-between;
+}
+
+/* 
+  Bottom buttons:
+  Same “soft” style so they feel like secondary actions under the effects panel.
+*/
+.bottomBtn {
+  flex: 1;
+  border: 3px solid var(--stroke);
+  border-radius: 14px;
+  padding: 12px 10px;
+  background: var(--btnSoft);
+  font-weight: 900;
+  cursor: pointer;
+}
+
+/* Hidden file input */
+#filePicker {
+  display: none;
+}
